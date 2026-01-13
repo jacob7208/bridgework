@@ -21,5 +21,5 @@ func (app *application) routes() http.Handler {
 	// router.HandlerFunc(http.MethodGet, "/v1/synonyms", app.getSynonymsHandler)
 	// router.HandlerFunc(http.MethodPost, "/v1/brainstorm", app.brainstormHandler)
 
-	return router
+	return app.recoverPanic(router)
 }

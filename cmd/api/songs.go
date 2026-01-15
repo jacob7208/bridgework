@@ -3,12 +3,36 @@ package main
 import (
 	"fmt"
 	"github.com/jacob7208/bridgework/internal/data"
+	"github.com/jacob7208/bridgework/internal/validator"
 	"net/http"
 	"time"
 )
 
 func (app *application) createSongHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "create a new movie")
+	var input struct {
+		Title  string `json:"title"`
+		Lyrics string `json:"lyrics"`
+	}
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	song := &data.Song{
+		Title:  input.Title,
+		Lyrics: input.Lyrics,
+	}
+
+	v := validator.New()
+
+	if data.ValidateSong(v, song); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	fmt.Fprintf(w, "%+v\n", input)
 }
 
 func (app *application) showSongHandler(w http.ResponseWriter, r *http.Request) {

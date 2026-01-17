@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"github.com/jacob7208/bridgework/internal/validator"
@@ -32,7 +33,10 @@ func (m SongModel) Insert(song *Song) error {
 
 	args := []any{song.Title, song.Lyrics}
 
-	return m.DB.QueryRow(query, args...).Scan(&song.ID, &song.CreatedAt, &song.Version)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	return m.DB.QueryRowContext(ctx, query, args...).Scan(&song.ID, &song.CreatedAt, &song.Version)
 }
 
 func (m SongModel) Get(id int64) (*Song, error) {
@@ -47,7 +51,10 @@ func (m SongModel) Get(id int64) (*Song, error) {
 
 	var song Song
 
-	err := m.DB.QueryRow(query, id).Scan(
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(
 		&song.ID,
 		&song.CreatedAt,
 		&song.Title,
@@ -70,16 +77,30 @@ func (m SongModel) Update(song *Song) error {
 	query := `
 		UPDATE songs
 		SET title = $1, lyrics = $2, version = version + 1
-		WHERE id = $3
+		WHERE id = $3 AND version = $4
 		RETURNING version`
 
 	args := []any{
 		song.Title,
 		song.Lyrics,
 		song.ID,
+		song.Version,
 	}
 
-	return m.DB.QueryRow(query, args...).Scan(&song.Version)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&song.Version)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (m SongModel) Delete(id int64) error {
@@ -91,7 +112,10 @@ func (m SongModel) Delete(id int64) error {
 		DELETE from songs
 		    WHERE id = $1`
 
-	result, err := m.DB.Exec(query, id)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := m.DB.ExecContext(ctx, query, id)
 	if err != nil {
 		return err
 	}

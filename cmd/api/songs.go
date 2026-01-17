@@ -90,8 +90,8 @@ func (app *application) updateSongHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	var input struct {
-		Title  string `json:"title"`
-		Lyrics string `json:"lyrics"`
+		Title  *string `json:"title"`
+		Lyrics *string `json:"lyrics"`
 	}
 
 	err = app.readJSON(w, r, &input)
@@ -100,8 +100,13 @@ func (app *application) updateSongHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	song.Title = input.Title
-	song.Lyrics = input.Lyrics
+	if input.Title != nil {
+		song.Title = *input.Title
+	}
+
+	if input.Lyrics != nil {
+		song.Lyrics = *input.Lyrics
+	}
 
 	v := validator.New()
 
@@ -112,7 +117,12 @@ func (app *application) updateSongHandler(w http.ResponseWriter, r *http.Request
 
 	err = app.models.Songs.Update(song)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		switch {
+		case errors.Is(err, data.ErrEditConflict):
+			app.editConflictResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
 		return
 	}
 

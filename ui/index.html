@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BridgeWork</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <h1>BridgeWork</h1>
+        </div>
+        <div class="header-right">
+            <button id="log-in-btn">Log In</button>
+        </div>
+    </header>
+    <main id="list-view" class="view notebook">
+        <div class="song-list-header">
+            <button id="new-btn" class="hover-effect">New</button>
+            <input type="text" id="search" placeholder="Search...">
+        </div>
+        <div id="songs-container"></div>
+    </main>
+
+    <main id="edit-view" class="view notebook" style="display: none;">
+        <div class="notebook-lines">
+            <div id="edit-header" class="song-list-header">
+                <span id="save-status"></span>
+            </div>
+            <div id="song-container"></div>
+        </div>
+    </main>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

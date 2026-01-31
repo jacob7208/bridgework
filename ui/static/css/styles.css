@@ -1,0 +1,93 @@
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: #8C4C27;
+    border-bottom: 1px solid #ddd;
+}
+
+header h1 {
+    color: #F2F2F2
+}
+
+.notebook {
+    background-color: #f9f7f4;
+    background-image: repeating-linear-gradient(
+            transparent,
+            transparent 31px,
+            #d4d4d4 31px,
+            #d4d4d4 32px
+    );
+    line-height: 32px;
+    min-height: calc(100vh - 120px);
+}
+
+.song-list-header {
+    padding: 0 2rem;
+}
+
+#new-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-right: 1rem;
+    font: inherit;
+    cursor: pointer;
+}
+
+#search {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-left: 1rem;
+    font: inherit;
+    outline: none;
+}
+
+.notebook-line {
+    padding: 0 2rem;
+}
+
+.hover-effect {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.hover-effect:hover {
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    transform: scale(1.01);
+}
+
+.notebook-line .hover-effect {
+    display: inline-block;
+}
+
+.lyric-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font: inherit;
+    outline: none;
+    padding: 0;
+}
+
+.title-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font: inherit;
+    outline: none;
+    padding: 0;
+}
+
+#edit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#save-status {
+    color: gray;
+    font-size: 0.8rem;
+}

@@ -12,12 +12,12 @@
             <h1>BridgeWork</h1>
         </div>
         <div class="header-right">
-            <button id="log-in-btn">Log In</button>
+            <button id="log-in-btn" class="btn">Log In</button>
         </div>
     </header>
     <main id="list-view" class="view notebook">
         <div class="song-list-header">
-            <button id="new-btn" class="hover-effect">New</button>
+            <button id="new-btn" class="btn hover-effect">New</button>
             <input type="text" id="search" placeholder="Search...">
         </div>
         <div id="songs-container"></div>
@@ -25,12 +25,14 @@
 
     <main id="edit-view" class="view notebook" style="display: none;">
         <div class="notebook-lines">
-            <div id="edit-header" class="song-list-header">
+            <div id="edit-header">
+                <button id="back-btn" class="btn hover-effect">Back</button>
+                <button id="delete-btn" class="btn hover-effect">Delete</button>
                 <span id="save-status"></span>
             </div>
             <div id="song-container"></div>
         </div>
     </main>
-    <script src="/static/js/main.js"></script>
+    <script src="/static/js/main.js" type="module"></script>
 </body>
 </html>

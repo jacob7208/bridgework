@@ -2,7 +2,6 @@ import './api.js'
 import './router.js'
 import './views/editView.js'
 import './views/listView.js'
-import './utils/dom.js'
 import './utils/textEditor.js'
 
 import {setViewHandlers, navigate} from "./router.js";
@@ -24,9 +23,11 @@ setViewHandlers(showListView, showEditView)
 window.addEventListener('DOMContentLoaded', () => {
     const deleteBtn = document.getElementById('delete-btn');
     if (deleteBtn) {
-        deleteBtn.addEventListener('click', () => {
-            if (currentSongId) deleteSong(currentSongId);
-            navigate('/')
+        deleteBtn.addEventListener('click', async () => {
+            if (currentSongId) {
+                await deleteSong(currentSongId);
+            }
+            navigate('/');
         });
     }
 

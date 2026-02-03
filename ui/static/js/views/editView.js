@@ -1,18 +1,27 @@
 import {fetchSong, updateSong} from "../api.js";
-import {getTextWidth, handleTextWrap} from "../utils/textEditor.js";
 import {currentSongId, LYRIC_INPUT_CLASS, NOTEBOOK_LINE_CLASS, setCurrentSongId, TITLE_INPUT_CLASS} from "../main.js";
-import {createDiv, createInput} from "../utils/helpers.js";
+import {createDiv, createInput, debounce} from "../utils/helpers.js";
+import {getTextWidth, handleTextWrap} from "../utils/textEditor.js";
 
 const MAX_TITLE_LENGTH = 50;
-
-let saveStatusElement;
-let saveTimeout;
-let inputs = [];
+const MAX_HISTORY_SIZE = 50;
+const TYPING_PAUSE_THRESHOLD = 500;
 
 const editorState = {
     title: '',
     lyrics: [],
+    focusedLineIndex: 0,
+    cursorPos: 0
 }
+
+const pastEditorStates = [];
+const futureEditorStates = [];
+
+let inputs = [];
+let statusElement;
+let lastKeystrokeTime = 0;
+
+const dSaveSong = debounce(saveSong, 3000);
 
 export async function showEditView(songId) {
     document.getElementById('list-view').style.display = 'none';
@@ -22,13 +31,15 @@ export async function showEditView(songId) {
     setCurrentSongId(songId)
 }
 
+// === Render Functions ===
+
 async function renderSong(songId) {
     const result = await fetchSong(songId);
 
     editorState.title = result.song.title;
     editorState.lyrics = (result.song.lyrics || '').split('\n');
 
-    saveStatusElement = document.getElementById('save-status')
+    statusElement = document.getElementById('save-status')
     const container = document.getElementById('song-container');
     container.innerHTML = '';
 
@@ -47,7 +58,7 @@ function renderTitle(container) {
 
         if (titleInput.value.length >= MAX_TITLE_LENGTH) {
             titleInput.value = titleInput.value.slice(0, MAX_TITLE_LENGTH);
-            saveStatusElement.textContent = "Title Max Length";
+            statusElement.textContent = "Title Max Length";
         }
     })
 
@@ -64,29 +75,74 @@ function renderLyrics(container) {
     for (let i = 0; i < totalLines; i++) {
         const lineText = lines[i] || '';
 
-        const div = addLyricLine(inputs, lineText);
+        const div = addLyricLine(lineText);
 
         container.appendChild(div);
     }
 }
 
-export function addLyricLine(inputs, lineText) {
+function rerender() {
+    const container = document.getElementById('song-container');
+    container.innerHTML = '';
+    inputs = [];
+
+    renderTitle(container);
+    renderLyrics(container);
+
+    const focusedLine = inputs[editorState.focusedLineIndex];
+    focusedLine?.focus();
+    focusedLine.selectionStart = editorState.cursorPos;
+    focusedLine.selectionEnd = editorState.cursorPos;
+
+}
+
+function addLyricLine(lineText) {
     const div = createDiv(NOTEBOOK_LINE_CLASS);
     const input = createInput('text', lineText, LYRIC_INPUT_CLASS);
 
-    attachWrapHandler(input, inputs)
+    attachInputHandler(input)
 
     inputs.push(input);
-    attachKeydownHandlers(input, inputs)
+    attachKeydownHandlers(input)
 
     div.appendChild(input);
 
     return div
 }
 
-function attachWrapHandler(input, inputs) {
+// === State Management ===
+
+function updateEditorState(input) {
+    editorState.lyrics = inputs.map(inp => inp.value);
+    editorState.focusedLineIndex = inputs.indexOf(input);
+    editorState.cursorPos = input.selectionStart;
+}
+
+function saveToHistory() {
+    futureEditorStates.length = 0;
+    if (pastEditorStates.length >= MAX_HISTORY_SIZE) {
+        pastEditorStates.pop()
+    }
+    const state = structuredClone(editorState);
+    pastEditorStates.unshift(state);
+}
+
+function handleTypingSession(input) {
+    const now = Date.now();
+    const sinceLastKeystroke = now - lastKeystrokeTime;
+    if (sinceLastKeystroke > TYPING_PAUSE_THRESHOLD) {
+        updateEditorState(input)
+        saveToHistory(input);
+    }
+    lastKeystrokeTime = now;
+}
+
+// === Event Handlers ===
+
+function attachInputHandler(input) {
     input.addEventListener('input', () => {
-        editorState.lyrics = inputs.map(inp => inp.value);
+        handleTypingSession(input);
+        updateEditorState(input);
         handleLyricsChange();
 
         const inputWidth = input.offsetWidth;
@@ -98,49 +154,67 @@ function attachWrapHandler(input, inputs) {
     });
 }
 
-function attachKeydownHandlers(input, inputs) {
+function attachKeydownHandlers(input) {
     input.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
-            enterKeydownHandler(event, input, inputs)
+            event.preventDefault();
+            enterKeydownHandler(input)
         }
 
         if (event.key === 'Backspace') {
-            backspaceKeydownHandler(event, input, inputs)
+            backspaceKeydownHandler(event, input)
         }
 
         if (event.key === 'ArrowDown') {
-            downKeydownHandler(event, input, inputs)
+            event.preventDefault();
+            downKeydownHandler(input)
         }
 
         if (event.key === 'ArrowUp') {
-            upKeydownHandler(event, input, inputs)
+            event.preventDefault();
+            upKeydownHandler(input)
+        }
+
+        const isCtrlPressed = event.ctrlKey || event.metaKey;
+
+        if (isCtrlPressed && event.key.toLowerCase() === 'z') {
+            event.preventDefault();
+            if (event.shiftKey) {
+                redoHandler();
+            } else {
+                undoHandler();
+            }
+        }
+
+        if (isCtrlPressed && event.key.toLowerCase() === 'v') {
+            pasteHandler();
         }
     })
 }
 
-function enterKeydownHandler(event, input, allInputs) {
-    event.preventDefault();
-
+function enterKeydownHandler(input) {
     const cursorPos = input.selectionStart;
     const currentText = input.value;
     const textBefore = currentText.slice(0, cursorPos);
     const textAfter = currentText.slice(cursorPos);
-    const currentIndex = allInputs.indexOf(input);
-    const nextLine = allInputs[currentIndex + 1]
+    const currentIndex = inputs.indexOf(input);
+    const nextLine = inputs[currentIndex + 1]
 
-    if (currentIndex >= allInputs.length - 5 || nextLine === '') {
+    saveToHistory(input);
+
+    if (currentIndex >= inputs.length - 5 || nextLine === '') {
         const container = document.getElementById('song-container');
-        const div = addLyricLine(allInputs, '');
+        const div = addLyricLine(inputs, '');
         container.appendChild(div);
     }
 
-    allInputs[currentIndex].value = textBefore;
+    inputs[currentIndex].value = textBefore;
 
-    const linesBelow = allInputs.slice(currentIndex + 1).map(inp => inp.value);
+    const linesBelow = inputs.slice(currentIndex + 1).map(inp => inp.value);
 
     linesBelow.unshift(textAfter)
 
-    allInputs.slice(currentIndex + 1).forEach((inp, i) => {
+    inputs.slice(currentIndex + 1).forEach((inp, i) => {
         inp.value = linesBelow[i] || '';
     });
 
@@ -148,35 +222,44 @@ function enterKeydownHandler(event, input, allInputs) {
     nextLine.selectionStart = 0;
     nextLine.selectionEnd = 0;
 
-    editorState.lyrics = allInputs.map(inp => inp.value);
+    updateEditorState(input);
+    statusElement.textContent = "Saving...";
+    dSaveSong(currentSongId)
 }
 
-function backspaceKeydownHandler(event, input, allInputs) {
+function backspaceKeydownHandler(event, input) {
     const cursorPos = input.selectionStart;
     const selectionEnd = input.selectionEnd;
     const hasSelection = cursorPos !== selectionEnd;
-    const currentIndex = allInputs.indexOf(input);
-    const currentInput = allInputs[currentIndex];
+    const currentIndex = inputs.indexOf(input);
+    const currentInput = inputs[currentIndex];
+    const prevInput = inputs[currentIndex - 1];
+    const prevInputLength = prevInput.value.length
+
+    handleTypingSession(input);
+
+    if (currentIndex === 0) return;
 
     if (currentInput.value === '') {
+        event.preventDefault();
         currentInput.parentElement.remove()
-        allInputs.splice(currentIndex, 1)
+        inputs.splice(currentIndex, 1);
+        prevInput.focus();
+        prevInput.selectionStart = prevInputLength;
+        prevInput.selectionEnd = prevInputLength;
+        return;
     }
 
     if (cursorPos === 0 && !hasSelection) {
         event.preventDefault();
 
-        const linesBelow = allInputs.slice(currentIndex + 1).map(inp => inp.value);
+        const linesBelow = inputs.slice(currentIndex + 1).map(inp => inp.value);
 
-        if (currentIndex === 0) return;
-
-        const prevInput = allInputs[currentIndex - 1];
-        const prevInputLength = prevInput.value.length
         const currentText = input.value;
 
         prevInput.value = prevInput.value + currentText
 
-        allInputs.slice(currentIndex).forEach((inp, i) => {
+        inputs.slice(currentIndex).forEach((inp, i) => {
             inp.value = linesBelow[i] || '';
         });
 
@@ -187,13 +270,12 @@ function backspaceKeydownHandler(event, input, allInputs) {
         }
 
     }
-
-    editorState.lyrics = allInputs.map(inp => inp.value);
+    updateEditorState(input);
+    statusElement.textContent = "Saving...";
+    dSaveSong(currentSongId)
 }
 
-function downKeydownHandler(event, input, inputs) {
-    event.preventDefault();
-
+function downKeydownHandler(input) {
     const currentIndex = inputs.indexOf(input);
     const nextIndex = currentIndex + 1;
 
@@ -203,9 +285,7 @@ function downKeydownHandler(event, input, inputs) {
     nextInput.focus();
 }
 
-function upKeydownHandler(event, input, inputs) {
-    event.preventDefault();
-
+function upKeydownHandler(input) {
     const currentIndex = inputs.indexOf(input);
     const prevIndex = currentIndex - 1;
 
@@ -215,22 +295,53 @@ function upKeydownHandler(event, input, inputs) {
     nextInput.focus();
 }
 
+function undoHandler() {
+    const state = structuredClone(editorState);
+    futureEditorStates.unshift(state);
+
+    if (pastEditorStates.length === 0) return;
+
+    const newState = pastEditorStates.shift();
+    editorState.title = newState.title;
+    editorState.lyrics = newState.lyrics;
+    editorState.focusedLineIndex = newState.focusedLineIndex;
+    editorState.cursorPos = newState.cursorPos;
+
+    rerender();
+}
+
+function redoHandler() {
+    const state = structuredClone(editorState);
+    pastEditorStates.unshift(state);
+
+    if (futureEditorStates.length === 0) return;
+
+    const newState = futureEditorStates.shift();
+    editorState.title = newState.title;
+    editorState.lyrics = newState.lyrics;
+    editorState.focusedLineIndex = newState.focusedLineIndex;
+    editorState.cursorPos = newState.cursorPos;
+
+    rerender();
+}
+
+function pasteHandler() {
+    dSaveSong(currentSongId)
+}
+
+// === Backend Integration ===
 
 async function saveSong(songId) {
     try {
        await updateSong(songId, editorState.title, editorState.lyrics.join('\n'));
-       saveStatusElement.textContent = "Saved";
-   } catch {
-       saveStatusElement.textContent = "Error";
+       statusElement.textContent = "Saved";
+   } catch (error) {
+       statusElement.textContent = "Error";
        console.log(error);
    }
 }
 
-function handleLyricsChange() {
-    clearTimeout(saveTimeout);
-
-    saveStatusElement.textContent = "Saving..."
-    saveTimeout = setTimeout(() => {
-        saveSong(currentSongId);
-    }, 3000);
+export function handleLyricsChange() {
+    statusElement.textContent = "Saving...";
+    dSaveSong(currentSongId);
 }

@@ -8,29 +8,34 @@
 </head>
 <body>
     <header>
-        <div class="header-left">
-            <h1>BridgeWork</h1>
-        </div>
-        <div class="header-right">
-            <button id="log-in-btn" class="btn">Log In</button>
+        <div class="header-inner">
+            <div class="header-left">
+                <h1>BridgeWork</h1>
+            </div>
+            <div class="header-right">
+                <button id="log-in-btn" class="btn">Log In</button>
+            </div>
         </div>
     </header>
-    <main id="list-view" class="view notebook">
-        <div class="song-list-header">
+
+    <main id="list-view" class="view">
+        <div class="view-header">
             <button id="new-btn" class="btn hover-effect">New</button>
             <input type="text" id="search" placeholder="Search...">
         </div>
-        <div id="songs-container"></div>
+        <div class="notebook">
+            <div id="songs-container" class="notebook-content"></div>
+        </div>
     </main>
 
-    <main id="edit-view" class="view notebook" style="display: none;">
-        <div class="notebook-lines">
-            <div id="edit-header">
-                <button id="back-btn" class="btn hover-effect">Back</button>
-                <button id="delete-btn" class="btn hover-effect">Delete</button>
-                <span id="save-status"></span>
-            </div>
-            <div id="song-container"></div>
+    <main id="edit-view" class="view" style="display: none;">
+        <div class="view-header">
+            <button id="back-btn" class="btn hover-effect">Back</button>
+            <button id="delete-btn" class="btn hover-effect">Delete</button>
+            <span id="save-status"></span>
+        </div>
+        <div class="notebook">
+            <div id="song-container" class="notebook-content"></div>
         </div>
     </main>
     <script src="/static/js/main.js" type="module"></script>

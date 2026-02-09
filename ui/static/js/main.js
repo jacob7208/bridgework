@@ -2,18 +2,21 @@ import './api.js'
 import './router.js'
 import './views/editView.js'
 import './views/listView.js'
-import './utils/textEditor.js'
+import './utils/helpers.js'
 
 import {setViewHandlers, navigate} from "./router.js";
 import {showListView, newSong} from "./views/listView.js";
 import {showEditView} from "./views/editView.js";
 import {deleteSong} from "./api.js";
 
-export let NOTEBOOK_LINE_CLASS = 'notebook-line'
-export let TITLE_INPUT_CLASS = 'title-input'
-export let LYRIC_INPUT_CLASS = 'lyric-input'
+export let NOTEBOOK_LINE = 'notebook-line'
+export let TITLE_INPUT = 'title-input'
+export let LYRIC_EDITOR = 'lyric-editor'
+export let SONG_CONTAINER = 'song-container'
+export let SONGS_CONTAINER = 'songs-container'
 
 export let currentSongId = null;
+
 export function setCurrentSongId(id) {
     currentSongId = id;
 }

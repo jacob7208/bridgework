@@ -1,16 +1,16 @@
-export function createDiv(className, textContent) {
+export function createDiv(id, className) {
     const div = document.createElement('div');
+    div.id = id
     div.className = className;
-    div.textContent = textContent;
 
     return div;
 }
 
-export function createInput(type, value, className) {
+export function createInput(id, className, type) {
     const input = document.createElement('input');
-    input.type = type;
-    input.value = value;
+    input.id = id
     input.className = className;
+    input.type = type;
 
     return input;
 }

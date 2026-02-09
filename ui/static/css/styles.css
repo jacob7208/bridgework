@@ -1,17 +1,26 @@
-header {
+body {
+    margin: 0;
+    background: #eae7e3;
+    padding: 0 1rem;
+}
+
+.header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 2rem;
-    background: #8C4C27;
-    border-bottom: 1px solid #ddd;
-}
-
-header h1 {
-    color: #F2F2F2
 }
 
 .notebook {
+    position: relative;
+    overflow: hidden;
+
+    max-width: 1200px;
+    margin: 0 auto;
+
     background-color: #f9f7f4;
     background-image: repeating-linear-gradient(
             transparent,
@@ -19,12 +28,42 @@ header h1 {
             #d4d4d4 31px,
             #d4d4d4 32px
     );
+
     line-height: 32px;
+    padding-top: calc(32px * 2);
+    padding-inline: clamp(1rem, 5vw, 3rem);
+
+    border-radius: 6px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+
     min-height: calc(100vh - 120px);
 }
 
-.song-list-header {
-    padding: 0 2rem;
+.notebook::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+
+    height: calc(32px * 2);
+    background: #f9f7f4;
+
+    z-index: 1;
+    pointer-events: none;
+}
+
+.notebook > * {
+    position: relative;
+    z-index: 2;
+}
+
+.view-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .btn {
@@ -45,32 +84,30 @@ header h1 {
     outline: none;
 }
 
-.notebook-line {
-    flex: 1;
-    padding: 0 2rem;
-}
-
 .hover-effect {
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .hover-effect:hover {
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-    transform: scale(1.01);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
 }
 
-.notebook-line .hover-effect {
-    display: inline-block;
+.notebook-content {
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
-.lyric-input {
-    width: 100%;
-    border: none;
-    background: transparent;
-    font: inherit;
-    outline: none;
-    padding: 0;
+#songs-container, #song-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+#save-status {
+    margin-left: auto;
+    min-width: 5rem;
+    color: gray;
+    font-size: 0.8rem;
 }
 
 .title-input {
@@ -84,15 +121,14 @@ header h1 {
     min-width: 0;
 }
 
-#edit-header {
-    display: flex;
-    align-items: center;
+.lyric-editor {
     padding: 0 2rem;
+    outline: none;
+    white-space: pre-wrap;
 }
 
-#save-status {
-    margin-left: auto;
-    min-width: 5rem;
-    color: gray;
-    font-size: 0.8rem;
+.lyric-editor p {
+    margin: 0;
+    min-height: 32px;
 }
+

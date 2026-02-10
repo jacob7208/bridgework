@@ -21,6 +21,8 @@ func (app *application) routes() http.Handler {
 	// router.HandlerFunc(http.MethodGet, "/v1/synonyms", app.getSynonymsHandler)
 	// router.HandlerFunc(http.MethodPost, "/v1/brainstorm", app.brainstormHandler)
 
+	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
+
 	fs := http.FileServer(http.Dir("./ui/static"))
 	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static/", fs))
 

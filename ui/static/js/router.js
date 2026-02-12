@@ -14,10 +14,10 @@ export function navigate(path) {
 function router() {
     const path = window.location.pathname;
 
-    if (path === '/' || path === '/songs') {
+    if (path === '/app' || path === '/app/songs') {
         listViewHandler();
-    } else if (path.startsWith('/songs/')) {
-        const songId = path.split('/')[2];
+    } else if (path.startsWith('/app/songs/')) {
+        const songId = path.split('/')[3];
         editViewHandler(songId);
     }
 }

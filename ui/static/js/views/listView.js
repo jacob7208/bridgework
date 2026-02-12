@@ -23,22 +23,29 @@ export async function showListView() {
 }
 
 async function renderSongList() {
-    const result = await fetchSongs();
+    try {
+        const result = await fetchSongs();
 
-    for (let song of result.songs) {
-        const div = createDiv(NOTEBOOK_LINE, NOTEBOOK_LINE);
-        const span = createSpan('hover-effect', song.title);
-        span.setAttribute("data-id", song.id)
-        span.addEventListener("click", handleSongClick);
+        for (let song of result.songs) {
+            const div = createDiv(NOTEBOOK_LINE, NOTEBOOK_LINE);
+            const span = createSpan('hover-effect', song.title);
+            span.setAttribute("data-id", song.id)
+            span.addEventListener("click", handleSongClick);
 
-        div.appendChild(span);
-        songsContainer.appendChild(div);
+            div.appendChild(span);
+            songsContainer.appendChild(div);
+        }
+    } catch (error) {
+        console.error("Songs not found:", error);
+        navigate("/")
     }
+
+
 }
 
 function handleSongClick(event) {
     const songId = event.target.getAttribute('data-id')
-    navigate(`/songs/${songId}`);
+    navigate(`/app/songs/${songId}`);
 }
 
 export async function newSong() {
@@ -47,5 +54,5 @@ export async function newSong() {
 
     const result = await createSong(title, lyrics);
     const newSongId = result.song.id;
-    navigate(`/songs/${newSongId}`);
+    navigate(`/app/songs/${newSongId}`);
 }

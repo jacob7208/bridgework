@@ -30,13 +30,13 @@ window.addEventListener('DOMContentLoaded', () => {
             if (currentSongId) {
                 await deleteSong(currentSongId);
             }
-            navigate('/');
+            navigate('/app/songs');
         });
     }
 
     const backBtn = document.getElementById('back-btn');
     if (backBtn) {
-        backBtn.addEventListener('click', () => navigate('/'));
+        backBtn.addEventListener('click', () => navigate('/app/songs'));
     }
 
     const newBtn = document.getElementById('new-btn');

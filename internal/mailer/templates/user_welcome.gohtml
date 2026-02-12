@@ -3,7 +3,13 @@
 {{define "plainBody"}}
 Hi,
 
-Thanks for signing up for a BridgeWork account. We're excited to have you on board, now let's write something great!
+Thanks for signing up for a BridgeWork account.
+
+To activate your account please click the following link:
+
+http://localhost:4000/users/activate?token={{.activationToken}}
+
+Please note that this link can only be used once and will expire in 3 days.
 
 Happy writing,
 
@@ -21,8 +27,10 @@ The BridgeWork Team
 
 <body>
     <p>Hi,</p>
-    <p>Thanks for signing up for a BridgeWork account. We're excited to have you on board,
-        now let's write something great!</p>
+    <p>Thanks for signing up for a BridgeWork account.</p>
+    <p>To activate your account please click the following link:</p>
+    <p><a href="http://localhost:4000/users/activate?token={{.activationToken}}">Activate your account</a></p>
+    <p>Please note that this link can only be used once and will expire in 3 days.</p>
     <p>Happy writing,</p>
     <p>The BridgeWork Team</p>
 </body>

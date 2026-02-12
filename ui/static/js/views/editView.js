@@ -4,6 +4,7 @@ import {
     setCurrentSongId, SONG_CONTAINER, TITLE_INPUT,
 } from "../main.js";
 import {createDiv, createInput, debounce} from "../utils/helpers.js";
+import {navigate} from "../router.js";
 
 let titleInput;
 let lyricEditor;
@@ -27,15 +28,20 @@ export async function showEditView(songId) {
 // === Render Functions ===
 
 async function renderSong(songId) {
-    const result = await fetchSong(songId);
+    try {
+        const result = await fetchSong(songId);
 
-    editorState.title = result.song.title;
-    editorState.lyrics = (result.song.lyrics || '').split('\n');
+        editorState.title = result.song.title;
+        editorState.lyrics = (result.song.lyrics || '').split('\n');
 
-    initEditorDOM();
-    attachEventHandlers(lyricEditor, titleInput);
-    renderTitle();
-    renderLyrics();
+        initEditorDOM();
+        attachEventHandlers(lyricEditor, titleInput);
+        renderTitle();
+        renderLyrics();
+    } catch (error) {
+        console.error("Song not found:", error);
+        navigate("/app/songs")
+    }
 }
 
 function initEditorDOM() {

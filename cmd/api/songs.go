@@ -9,6 +9,8 @@ import (
 )
 
 func (app *application) createSongHandler(w http.ResponseWriter, r *http.Request) {
+	userID := app.contextGetUser(r).ID
+
 	var input struct {
 		Title  string `json:"title"`
 		Lyrics string `json:"lyrics"`
@@ -32,7 +34,7 @@ func (app *application) createSongHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = app.models.Songs.Insert(song)
+	err = app.models.Songs.Insert(song, userID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -48,13 +50,15 @@ func (app *application) createSongHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) showSongHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := app.readIDParam(r)
+	songID, err := app.readIDParam(r)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
 	}
 
-	song, err := app.models.Songs.Get(id)
+	userID := app.contextGetUser(r).ID
+
+	song, err := app.models.Songs.Get(songID, userID)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
@@ -72,13 +76,15 @@ func (app *application) showSongHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (app *application) updateSongHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := app.readIDParam(r)
+	songID, err := app.readIDParam(r)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
 	}
 
-	song, err := app.models.Songs.Get(id)
+	userID := app.contextGetUser(r).ID
+
+	song, err := app.models.Songs.Get(songID, userID)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
@@ -115,7 +121,7 @@ func (app *application) updateSongHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = app.models.Songs.Update(song)
+	err = app.models.Songs.Update(song, userID)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrEditConflict):
@@ -133,13 +139,15 @@ func (app *application) updateSongHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) deleteSongHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := app.readIDParam(r)
+	songID, err := app.readIDParam(r)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
 	}
 
-	err = app.models.Songs.Delete(id)
+	userID := app.contextGetUser(r).ID
+
+	err = app.models.Songs.Delete(songID, userID)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
@@ -157,28 +165,9 @@ func (app *application) deleteSongHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) listSongsHandler(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Title string
-		data.Filters
-	}
+	userID := app.contextGetUser(r).ID
 
-	v := validator.New()
-
-	qs := r.URL.Query()
-
-	input.Title = app.readString(qs, "title", "")
-
-	input.Filters.Page = app.readInt(qs, "page", 1, v)
-	input.Filters.PageSize = app.readInt(qs, "page_size", 20, v)
-	input.Filters.Sort = app.readString(qs, "sort", "id")
-	input.Filters.SortSafeList = []string{"id", "title", "-id", "-title"}
-
-	if data.ValidateFilters(v, input.Filters); !v.Valid() {
-		app.failedValidationResponse(w, r, v.Errors)
-		return
-	}
-
-	songs, err := app.models.Songs.GetAll(input.Title, input.Filters)
+	songs, err := app.models.Songs.GetAll(userID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

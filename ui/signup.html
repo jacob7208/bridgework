@@ -15,26 +15,31 @@
 
     <main>
         <div class="auth-container">
-            <form id="signup-form">
-                <h2>Create your account</h2>
-                <label>
-                    Name
-                    <input type="text" name="name" />
-                </label>
-                <label>
-                    Email
-                    <input type="email" email="email" />
-                </label>
-                <label>
-                    Password
-                    <input type="password" password="password"/>
-                </label>
-            </form>
+            <h2>Create your account</h2>
+            <div class="signup-form">
+                <form id="signup-form" novalidate>
+                    <div id="form-msg" class="form-message"></div>
+                    <div class="form-group">
+                        <div id="name-err" class="error-message"></div>
+                        <input id="name" class="form-input" type="text" name="name" placeholder="Name"/>
+                    </div>
+                    <div class="form-group">
+                        <div id="email-err" class="error-message"></div>
+                        <input id="email" class="form-input" type="email" name="email" placeholder="Email" />
+                    </div>
+                    <div class="form-group">
+                        <div id="password-err" class="error-message"></div>
+                        <input id="password" class="form-input" type="password" name="password" placeholder="Password" />
+                    </div>
+
+                    <button id="submitBtn" type="submit" class="submit-btn">Sign up</button>
+                </form>
+            </div>
             <p class="toggle-auth">
                 Already have an account? <a href="/login">Log in</a>
             </p>
         </div>
     </main>
-    <script src="/static/js/auth.js" type="module"></script>
+    <script src="/static/js/auth/signup.js" type="module"></script>
 </body>
 </html>

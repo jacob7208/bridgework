@@ -1,3 +1,0 @@
-import
-
-async function Sign

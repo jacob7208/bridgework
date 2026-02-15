@@ -12,11 +12,12 @@ func (app *application) routes() http.Handler {
 	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowed)
 
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
-	router.HandlerFunc(http.MethodPost, "/v1/songs", app.createSongHandler)
-	router.HandlerFunc(http.MethodGet, "/v1/songs", app.listSongsHandler)
-	router.HandlerFunc(http.MethodGet, "/v1/songs/:id", app.showSongHandler)
-	router.HandlerFunc(http.MethodPatch, "/v1/songs/:id", app.updateSongHandler)
-	router.HandlerFunc(http.MethodDelete, "/v1/songs/:id", app.deleteSongHandler)
+
+	router.HandlerFunc(http.MethodPost, "/v1/songs", app.requireActivatedUser(app.createSongHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/songs", app.requireActivatedUser(app.listSongsHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/songs/:id", app.requireActivatedUser(app.showSongHandler))
+	router.HandlerFunc(http.MethodPatch, "/v1/songs/:id", app.requireActivatedUser(app.updateSongHandler))
+	router.HandlerFunc(http.MethodDelete, "/v1/songs/:id", app.requireActivatedUser(app.deleteSongHandler))
 	// router.HandlerFunc(http.MethodGet, "/v1/rhymes", app.getRhymesHandler)
 	// router.HandlerFunc(http.MethodGet, "/v1/synonyms", app.getSynonymsHandler)
 	// router.HandlerFunc(http.MethodPost, "/v1/brainstorm", app.brainstormHandler)
@@ -29,7 +30,7 @@ func (app *application) routes() http.Handler {
 	fs := http.FileServer(http.Dir("./ui/static"))
 	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static/", fs))
 
-	router.HandlerFunc(http.MethodGet, "/", app.serveSignUpPage)
+	router.HandlerFunc(http.MethodGet, "/", app.serveLoginPage)
 	router.HandlerFunc(http.MethodGet, "/signup", app.serveSignUpPage)
 	router.HandlerFunc(http.MethodGet, "/login", app.serveLoginPage)
 	router.HandlerFunc(http.MethodGet, "/activate", app.serveActivatePage)

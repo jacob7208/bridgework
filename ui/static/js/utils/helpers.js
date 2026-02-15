@@ -32,3 +32,20 @@ export function debounce(func, delay) {
         }, delay);
     }
 }
+
+export function newFetchError(response, result) {
+    const err = new Error('Request Failed');
+    err.status = response.status;
+    err.data = result.error;
+    return err
+}
+
+export function handleAPIError(error) {
+    if (error.status === 401) {
+        localStorage.removeItem('authToken');
+        window.location.href = '/login';
+        return;
+    }
+
+    return error;
+}

@@ -3,7 +3,7 @@ import {
     currentSongId, LYRIC_EDITOR,
     setCurrentSongId, SONG_CONTAINER, TITLE_INPUT,
 } from "../main.js";
-import {createDiv, createInput, debounce} from "../utils/helpers.js";
+import {createDiv, createInput, debounce, handleAPIError} from "../utils/helpers.js";
 import {navigate} from "../router.js";
 
 let titleInput;
@@ -39,6 +39,7 @@ async function renderSong(songId) {
         renderTitle();
         renderLyrics();
     } catch (error) {
+        handleAPIError(error);
         console.error("Song not found:", error);
         navigate("/app/songs")
     }
@@ -106,8 +107,9 @@ async function saveSong(songId) {
        await updateSong(songId, editorState.title, editorState.lyrics.join('\n'));
        statusElement.textContent = "Saved";
    } catch (error) {
-       statusElement.textContent = "Error";
-       console.log(error);
+        handleAPIError(error);
+        statusElement.textContent = "Error";
+        console.log(error);
    }
 }
 

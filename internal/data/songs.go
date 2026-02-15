@@ -14,6 +14,7 @@ type Song struct {
 	Title     string    `json:"title,omitzero"`
 	Lyrics    string    `json:"lyrics,omitzero"`
 	Version   int32     `json:"version,omitzero"`
+	UserID    int64     `json:"user_id"`
 }
 
 func ValidateSong(v *validator.Validator, song *Song) {
@@ -25,13 +26,13 @@ type SongModel struct {
 	DB *sql.DB
 }
 
-func (m SongModel) Insert(song *Song) error {
+func (m SongModel) Insert(song *Song, userID int64) error {
 	query := `
-        INSERT INTO songs (title, lyrics)
-        VALUES ($1, $2)
+        INSERT INTO songs (title, lyrics, user_id)
+        VALUES ($1, $2, $3)
         RETURNING id, created_at, version`
 
-	args := []any{song.Title, song.Lyrics}
+	args := []any{song.Title, song.Lyrics, userID}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -39,22 +40,22 @@ func (m SongModel) Insert(song *Song) error {
 	return m.DB.QueryRowContext(ctx, query, args...).Scan(&song.ID, &song.CreatedAt, &song.Version)
 }
 
-func (m SongModel) Get(id int64) (*Song, error) {
-	if id < 1 {
+func (m SongModel) Get(songID, userID int64) (*Song, error) {
+	if songID < 1 {
 		return nil, ErrRecordNotFound
 	}
 
 	query := `
         SELECT id, created_at, title, lyrics, version
  		FROM songs
- 		WHERE id = $1`
+ 		WHERE id = $1 AND user_id = $2`
 
 	var song Song
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := m.DB.QueryRowContext(ctx, query, id).Scan(
+	err := m.DB.QueryRowContext(ctx, query, songID, userID).Scan(
 		&song.ID,
 		&song.CreatedAt,
 		&song.Title,
@@ -73,11 +74,11 @@ func (m SongModel) Get(id int64) (*Song, error) {
 	return &song, nil
 }
 
-func (m SongModel) Update(song *Song) error {
+func (m SongModel) Update(song *Song, userID int64) error {
 	query := `
 		UPDATE songs
 		SET title = $1, lyrics = $2, version = version + 1
-		WHERE id = $3 AND version = $4
+		WHERE id = $3 AND version = $4 AND user_id = $5
 		RETURNING version`
 
 	args := []any{
@@ -85,6 +86,7 @@ func (m SongModel) Update(song *Song) error {
 		song.Lyrics,
 		song.ID,
 		song.Version,
+		userID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -103,19 +105,19 @@ func (m SongModel) Update(song *Song) error {
 	return nil
 }
 
-func (m SongModel) Delete(id int64) error {
-	if id < 1 {
+func (m SongModel) Delete(songID, userID int64) error {
+	if songID < 1 {
 		return ErrRecordNotFound
 	}
 
 	query := `
 		DELETE from songs
-		    WHERE id = $1`
+		    WHERE id = $1 AND user_id = $2`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	result, err := m.DB.ExecContext(ctx, query, id)
+	result, err := m.DB.ExecContext(ctx, query, songID, userID)
 	if err != nil {
 		return err
 	}
@@ -132,23 +134,24 @@ func (m SongModel) Delete(id int64) error {
 	return nil
 }
 
-func (s SongModel) GetAll(title string, filters Filters) ([]*Song, error) {
+func (m SongModel) GetAll(userID int64) ([]*Song, error) {
 	query := `
 		SELECT id, created_at, title, lyrics, version
 		FROM songs
+		WHERE user_id = $1
 		ORDER BY id`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	rows, err := s.DB.QueryContext(ctx, query)
+	rows, err := m.DB.QueryContext(ctx, query, userID)
 	if err != nil {
 		return nil, err
 	}
 
 	defer rows.Close()
 
-	songs := []*Song{}
+	var songs []*Song
 
 	for rows.Next() {
 		var song Song

@@ -1,7 +1,8 @@
 body {
     margin: 0;
-    background: #eae7e3;
     padding: 0 1rem;
+    min-height: 100vh;
+    background: #eae7e3;
 }
 
 .header-inner {
@@ -130,5 +131,76 @@ body {
 .lyric-editor p {
     margin: 0;
     min-height: 32px;
+}
+
+.auth-container {
+    margin: 20px auto 0 auto;
+    padding: 1rem;
+    width: 60%;
+    max-width: 800px;
+    overflow: hidden;
+    text-align: center;
+    background: #f9f7f4;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.login-form, .signup-form {
+    margin: 0 auto;
+}
+
+.form-input {
+    width: 60%;
+    height: 10px;
+    background: #e0dede;
+    justify-content: center;
+    display: flex;
+    margin: 0 auto 20px;
+    padding: 12px;
+    border: none;
+    outline: none;
+    border-radius: 5px;
+}
+
+.error-message {
+    margin: 0 auto;
+    width: 60%;
+    padding: 0;
+    font-size: 0.85rem;
+    color: #c4402c;
+    text-align: left;
+}
+
+.form-message {
+    margin: 0 auto 1rem auto;
+    width: 60%;
+    font-size: 0.85rem;
+    color: #c4402c;
+    text-align: left;
+}
+
+.submit-btn {
+    width: 60%;
+    height: 40px;
+    justify-content: center;
+    display: block;
+    color: #fff;
+    background: #6B4C23;
+    font-size: 1em;
+    font-weight: bold;
+    margin: 30px auto 10px;
+    outline: none;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.toggle-auth {
+    font: inherit;
+}
+
+.toggle-auth a {
+    color: #6B4C23;
+    text-decoration: none;
 }
 

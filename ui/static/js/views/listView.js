@@ -1,6 +1,6 @@
 import {createSong, fetchSongs} from "../api.js";
 import {navigate} from "../router.js";
-import {createDiv, createInput, createSpan} from "../utils/helpers.js";
+import {createDiv, createInput, createSpan, handleAPIError} from "../utils/helpers.js";
 import {NOTEBOOK_LINE, SONGS_CONTAINER, TITLE_INPUT} from "../main.js";
 
 let songsContainer;
@@ -12,12 +12,10 @@ export async function showListView() {
     songsContainer = document.getElementById(SONGS_CONTAINER);
     songsContainer.innerHTML = '';
 
-    const titleInput = createInput(TITLE_INPUT, TITLE_INPUT, 'text');
-    titleInput.value = 'My Songs'
-    titleInput.maxLength = 50;
-    titleInput.placeholder = 'My Songs';
+    const titleDiv = createDiv('list-title', TITLE_INPUT);
+    titleDiv.textContent = 'My Songs'
 
-    songsContainer.appendChild(titleInput);
+    songsContainer.appendChild(titleDiv);
 
     await renderSongList();
 }
@@ -25,6 +23,8 @@ export async function showListView() {
 async function renderSongList() {
     try {
         const result = await fetchSongs();
+        
+        if (!result.songs) return;
 
         for (let song of result.songs) {
             const div = createDiv(NOTEBOOK_LINE, NOTEBOOK_LINE);
@@ -36,11 +36,10 @@ async function renderSongList() {
             songsContainer.appendChild(div);
         }
     } catch (error) {
+        handleAPIError(error);
         console.error("Songs not found:", error);
         navigate("/")
     }
-
-
 }
 
 function handleSongClick(event) {
@@ -52,7 +51,14 @@ export async function newSong() {
     const title = 'Untitled'
     const lyrics = ''
 
-    const result = await createSong(title, lyrics);
-    const newSongId = result.song.id;
-    navigate(`/app/songs/${newSongId}`);
+    try {
+        const result = await createSong(title, lyrics);
+        const newSongId = result.song.id;
+        navigate(`/app/songs/${newSongId}`);
+    } catch (error) {
+        handleAPIError(error)
+        console.error("Failed to create song:", error);
+        navigate("/")
+    }
+
 }

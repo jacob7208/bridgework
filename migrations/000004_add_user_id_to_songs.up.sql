@@ -1,0 +1,4 @@
+DELETE FROM songs;
+
+ALTER TABLE songs
+ADD COLUMN user_id bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE;

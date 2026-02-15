@@ -8,6 +8,7 @@ import {setViewHandlers, navigate} from "./router.js";
 import {showListView, newSong} from "./views/listView.js";
 import {showEditView} from "./views/editView.js";
 import {deleteSong} from "./api.js";
+import {handleAPIError} from "./utils/helpers.js";
 
 export let NOTEBOOK_LINE = 'notebook-line'
 export let TITLE_INPUT = 'title-input'
@@ -28,7 +29,13 @@ window.addEventListener('DOMContentLoaded', () => {
     if (deleteBtn) {
         deleteBtn.addEventListener('click', async () => {
             if (currentSongId) {
-                await deleteSong(currentSongId);
+                try {
+                    await deleteSong(currentSongId);
+                } catch (error) {
+                    handleAPIError(error);
+                    console.log('Failed to delete song:', error)
+                }
+
             }
             navigate('/app/songs');
         });

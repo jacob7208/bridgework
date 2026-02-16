@@ -18,9 +18,6 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/v1/songs/:id", app.requireActivatedUser(app.showSongHandler))
 	router.HandlerFunc(http.MethodPatch, "/v1/songs/:id", app.requireActivatedUser(app.updateSongHandler))
 	router.HandlerFunc(http.MethodDelete, "/v1/songs/:id", app.requireActivatedUser(app.deleteSongHandler))
-	// router.HandlerFunc(http.MethodGet, "/v1/rhymes", app.getRhymesHandler)
-	// router.HandlerFunc(http.MethodGet, "/v1/synonyms", app.getSynonymsHandler)
-	// router.HandlerFunc(http.MethodPost, "/v1/brainstorm", app.brainstormHandler)
 
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activated", app.activateUserHandler)

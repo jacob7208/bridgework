@@ -23,7 +23,7 @@
         <div class="view-header">
             <button id="new-btn" class="btn hover-effect">New</button>
         </div>
-        <div class="notebook">
+        <div id="songs-notebook" class="notebook">
             <div id="songs-container" class="notebook-content">
             </div>
         </div>
@@ -35,9 +35,25 @@
             <button id="delete-btn" class="btn hover-effect">Delete</button>
             <span id="save-status"></span>
         </div>
-        <div class="notebook">
+        <div id="song-notebook" class="notebook">
             <div id="song-container" class="notebook-content"></div>
         </div>
+        <div class="book-wrapper">
+            <div class="book-open-btn">Rhymes & Synonyms</div>
+            <div id="book" class="book closed">
+                <button class="book-close">close</button>
+                <div id="rhyme-dict" class="book-page-left">
+                    <h3>Rhymes</h3>
+                    <div id="perfect-rhymes"></div>
+                    <div id="near-rhymes"></div>
+                </div>
+                <div id="thesaurus" class="book-page-right">
+                    <h3>Synonyms</h3>
+                    <div id="synonyms"></div>
+                </div>
+            </div>
+        </div>
+
     </main>
     <script src="/static/js/main.js" type="module"></script>
 </body>

@@ -5,12 +5,14 @@ import {
 } from "../main.js";
 import {createDiv, createInput, debounce, handleAPIError} from "../utils/helpers.js";
 import {navigate} from "../router.js";
+import {lookupWord} from "../datamuse.js";
 
 let titleInput;
 let lyricEditor;
 let statusElement;
-
-const dSaveSong = debounce(saveSong, 1000);
+let perfRhymesDiv;
+let nearRhymesDiv;
+let synonymsDiv;
 
 const editorState = {
     title: '',
@@ -21,8 +23,10 @@ export async function showEditView(songId) {
     document.getElementById('list-view').style.display = 'none';
     document.getElementById('edit-view').style.display = 'block';
 
-    await renderSong(songId)
-    setCurrentSongId(songId)
+    await renderSong(songId);
+    setCurrentSongId(songId);
+
+    renderBook();
 }
 
 // === Render Functions ===
@@ -41,7 +45,7 @@ async function renderSong(songId) {
     } catch (error) {
         handleAPIError(error);
         console.error("Song not found:", error);
-        navigate("/app/songs")
+        navigate("/app/songs");
     }
 }
 
@@ -61,6 +65,9 @@ function initEditorDOM() {
     songContainer.appendChild(lyricEditor);
 
     statusElement = document.getElementById('save-status');
+    perfRhymesDiv = document.getElementById('perfect-rhymes');
+    nearRhymesDiv = document.getElementById('near-rhymes');
+    synonymsDiv = document.getElementById('synonyms')
 }
 
 function renderTitle() {
@@ -81,10 +88,60 @@ function renderLyrics() {
     }
 }
 
+function renderBook() {
+    const book = document.getElementById("book");
+    const openBtn = document.querySelector(".book-open-btn");
+    const closeBtn = document.querySelector(".book-close");
+
+    openBtn.addEventListener("click", () => {
+        book.classList.remove("closed");
+        const songNotebook = document.getElementById('song-notebook');
+        songNotebook.style.paddingBottom = '400px';
+    });
+
+    closeBtn.addEventListener("click", () => {
+        book.classList.add("closed");
+        const songNotebook = document.getElementById('song-notebook');
+        songNotebook.style.paddingBottom = '';
+    });
+}
+
+function renderWordResults(results) {
+    perfRhymesDiv.innerHTML = '';
+    nearRhymesDiv.innerHTML = '';
+    synonymsDiv.innerHTML = '';
+
+    results.perfRhymes.forEach(word => {
+        const p = document.createElement('p');
+        p.textContent = word;
+        perfRhymesDiv.appendChild(p);
+    })
+    results.nearRhymes.forEach(word => {
+        const p = document.createElement('p');
+        p.textContent = word;
+        nearRhymesDiv.appendChild(p);
+    })
+    results.synonyms.forEach(word => {
+        const p = document.createElement('p');
+        p.textContent = word;
+        synonymsDiv.appendChild(p);
+    })
+}
+
 function attachEventHandlers(editor, titleInput) {
     editor.addEventListener('input', () => {
         editorState.lyrics = [...editor.children].map(p => p.textContent);
         scheduleSave();
+
+        handleWordLookup();
+    })
+
+    editor.addEventListener('keyup', () => {
+        handleWordLookup();
+    })
+
+    editor.addEventListener('click', () => {
+        handleWordLookup();
     })
 
     editor.addEventListener('paste', e => {
@@ -113,7 +170,53 @@ async function saveSong(songId) {
    }
 }
 
+const dSaveSong = debounce(saveSong, 1000);
+
 export function scheduleSave() {
     statusElement.textContent = "Saving...";
     dSaveSong(currentSongId);
 }
+
+// === Helpers ===
+
+function getWordAtCursor() {
+    const sel = window.getSelection();
+
+    if (!sel.rangeCount || !sel.focusNode) return '';
+
+    const textContent = sel.focusNode.textContent;
+
+    let cursor = sel.getRangeAt(0).startOffset;
+    let start;
+    let end;
+
+    // Snap cursor left to the nearest word character
+    while (cursor >= 0 && !isWordChar(textContent.charAt(cursor))) cursor--;
+
+    // Move left from cursor to find the start index of the word
+    start = cursor;
+    while (start >= 0 && isWordChar(textContent.charAt(start - 1))) start--;
+
+    // Move right from cursor to find the start index of the word
+    end = cursor;
+    while (end >= 0 && isWordChar(textContent.charAt(end + 1))) end++;
+
+    return textContent.slice(start, end + 1);
+}
+
+function isWordChar(char) {
+    return (
+        (char >= 'a' && char <= 'z') ||
+        (char >= 'A' && char <= 'Z') ||
+        (char >= '0' && char <= '9') ||
+        char === '_' ||
+        char === '\''
+    )
+}
+
+const handleWordLookup = debounce(async () => {
+    const word = getWordAtCursor();
+    const results = await lookupWord(word);
+    renderWordResults(results);
+}, 300);
+

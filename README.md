@@ -16,13 +16,13 @@ No more toggling between tabs to find the right word.
 - Dynamic rhyme and synonym recommendations
 
 ## Known Limitations
-- Limited number and lower quality of rhyme and synonym suggestions
+- Basic rhyme and synonym filtering logic
 - No text formatting or theme customization options
 - No caching of rhymes and synonyms on backend
 - No collaboration or export features
 
 ## Planned Features
-- Higher quantity and smarter rhyme and synonym suggestions
+- Smarter rhyme and synonym suggestions
 - AI brainstorm that offers thematic directions
 - Caching rhymes and synonyms on backend
 - Real-time collaboration

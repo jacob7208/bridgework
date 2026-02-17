@@ -220,7 +220,7 @@ body {
 .book-page-left,
 .book-page-right {
     flex: 1;
-    min-height: 20rem;
+    height: 20rem;
     padding: 2rem 1rem;
     background-color: #f6f1e8;
     background-image: repeating-linear-gradient(
@@ -231,8 +231,10 @@ body {
     );
 
     line-height: 2rem;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
     position: relative;
+
+    overflow-y: scroll;
 }
 
 .book-page-left h3,
@@ -284,6 +286,11 @@ body {
                     #d8d2c8 32px
             );
     box-shadow: inset 8px 0 15px -10px rgba(0, 0, 0, 0.3);
+}
+
+#rhymes,
+#synonyms {
+
 }
 
 .auth-container {

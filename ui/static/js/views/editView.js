@@ -11,8 +11,7 @@ let titleInput;
 let lyricEditor;
 let statusElement;
 let bookElement;
-let perfRhymesDiv;
-let nearRhymesDiv;
+let rhymesDiv;
 let synonymsDiv;
 
 const editorState = {
@@ -67,12 +66,10 @@ function initEditorDOM() {
 
     statusElement = document.getElementById('save-status');
     bookElement = document.getElementById('book')
-    perfRhymesDiv = document.getElementById('perfect-rhymes');
-    nearRhymesDiv = document.getElementById('near-rhymes');
+    rhymesDiv = document.getElementById('rhymes');
     synonymsDiv = document.getElementById('synonyms')
 
-    perfRhymesDiv.innerHTML = '';
-    nearRhymesDiv.innerHTML = '';
+    rhymesDiv.innerHTML = '';
     synonymsDiv.innerHTML = '';
 }
 
@@ -112,21 +109,13 @@ function renderBook() {
 }
 
 function renderWordResults(results) {
-    perfRhymesDiv.innerHTML = '';
-    nearRhymesDiv.innerHTML = '';
+    rhymesDiv.innerHTML = '';
     synonymsDiv.innerHTML = '';
 
-    console.log('InnerHTML:', synonymsDiv.innerHTML)
-
-    results.perfRhymes.forEach(word => {
+    results.rhymes.forEach(word => {
         const p = document.createElement('p');
         p.textContent = word;
-        perfRhymesDiv.appendChild(p);
-    })
-    results.nearRhymes.forEach(word => {
-        const p = document.createElement('p');
-        p.textContent = word;
-        nearRhymesDiv.appendChild(p);
+        rhymesDiv.appendChild(p);
     })
     results.synonyms.forEach(word => {
         const p = document.createElement('p');

@@ -6,7 +6,7 @@ export async function fetchSongs() {
     const response = await fetch(`${API_BASE_URL}/v1/songs`, {
         headers: {'Authorization': `Bearer ${localStorage.getItem('authToken')}`}
     });
-    const result = await response.json()
+    const result = await response.json();
 
     if (!response.ok) throw newFetchError(response, result);
     return result;
@@ -16,7 +16,7 @@ export async function fetchSong(id) {
     const response = await fetch(`${API_BASE_URL}/v1/songs/${id}`, {
         headers: {'Authorization': `Bearer ${localStorage.getItem('authToken')}`}
     });
-    const result = await response.json()
+    const result = await response.json();
 
     if (!response.ok) throw newFetchError(response, result);
     return result;
@@ -31,7 +31,7 @@ export async function createSong(title, lyrics) {
         },
         body: JSON.stringify({ title, lyrics })
     });
-    const result = await response.json()
+    const result = await response.json();
 
     if (!response.ok) throw newFetchError(response, result);
     return result;
@@ -46,7 +46,7 @@ export async function updateSong(id, title, lyrics) {
         },
         body: JSON.stringify({ title, lyrics })
     });
-    const result = await response.json()
+    const result = await response.json();
 
     if (!response.ok) throw newFetchError(response, result);
     return result;
@@ -57,7 +57,7 @@ export async function deleteSong(id) {
         method: 'DELETE',
         headers: {'Authorization': `Bearer ${localStorage.getItem('authToken')}`}
     });
-    const result = await response.json()
+    const result = await response.json();
 
     if (!response.ok) throw newFetchError(response, result);
     return result;
@@ -69,7 +69,7 @@ export async function registerUser(name, email, password) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password })
     });
-    const result = await response.json()
+    const result = await response.json();
 
     if (!response.ok) throw newFetchError(response, result);
     return result;
@@ -81,7 +81,7 @@ export async function activateUser(token) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token })
     });
-    const result = await response.json()
+    const result = await response.json();
 
     if (!response.ok) throw newFetchError(response, result);
     return result;
@@ -93,7 +93,18 @@ export async function fetchAuthenticationToken(email, password) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
     });
-    const result = await response.json()
+    const result = await response.json();
+
+    if (!response.ok) throw newFetchError(response, result);
+    return result;
+}
+
+export async function logoutUser() {
+    const response = await fetch(`${API_BASE_URL}/v1/tokens/authentication`, {
+        method: 'DELETE',
+        headers: {'Authorization': `Bearer ${localStorage.getItem('authToken')}`}
+    });
+    const result = await response.json();
 
     if (!response.ok) throw newFetchError(response, result);
     return result;

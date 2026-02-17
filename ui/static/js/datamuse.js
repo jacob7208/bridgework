@@ -5,7 +5,7 @@ import {newFetchError} from "./utils/helpers.js";
 const API_BASE_URL = 'https://api.datamuse.com';
 
 export async function fetchPerfectRhymes(word) {
-    const response = await fetch(`${API_BASE_URL}/words?rel_rhy=${word}`);
+    const response = await fetch(`${API_BASE_URL}/words?rel_rhy=${word}&max=10`);
     const result = await response.json()
 
     if (!response.ok) throw newFetchError(response, result);
@@ -13,7 +13,7 @@ export async function fetchPerfectRhymes(word) {
 }
 
 export async function fetchNearRhymes(word) {
-    const response = await fetch(`${API_BASE_URL}/words?rel_nry=${word}`);
+    const response = await fetch(`${API_BASE_URL}/words?rel_nry=${word}&max=10`);
     const result = await response.json()
 
     if (!response.ok) throw newFetchError(response, result);
@@ -21,7 +21,7 @@ export async function fetchNearRhymes(word) {
 }
 
 export async function fetchSynonyms(word) {
-    const response = await fetch(`${API_BASE_URL}/words?rel_syn=${word}`);
+    const response = await fetch(`${API_BASE_URL}/words?rel_syn=${word}&max=10`);
     const result = await response.json()
 
     if (!response.ok) throw newFetchError(response, result);
@@ -42,19 +42,22 @@ export async function lookupWord(word) {
     let synonyms = [];
 
     for (let word of perfRhymeResult) {
-        if (perfRhymes.length >= 5) break;
+        if (perfRhymes.length >= 7) break;
         if (word.numSyllables > 4) continue;
+        if (word.score < 1000) continue;
 
         perfRhymes.push(word.word);
     }
     for (let word of nearRhymeResult) {
-        if (nearRhymes.length >= 5) break;
+        if (nearRhymes.length >= 7) break;
         if (word.numSyllables > 4) continue;
+        if (word.score < 1000) continue;
 
         nearRhymes.push(word.word);
     }
     for (let word of synonymsResult) {
-        if (synonyms.length >= 10) break;
+        if (synonyms.length >= 14) break;
+        if (word.score < 1000) continue;
 
         synonyms.push(word.word);
     }

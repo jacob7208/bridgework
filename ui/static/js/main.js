@@ -7,7 +7,7 @@ import './utils/helpers.js'
 import {setViewHandlers, navigate} from "./router.js";
 import {showListView, newSong} from "./views/listView.js";
 import {showEditView} from "./views/editView.js";
-import {deleteSong} from "./api.js";
+import {deleteSong, logoutUser} from "./api.js";
 import {handleAPIError} from "./utils/helpers.js";
 
 export let NOTEBOOK_LINE = 'notebook-line'
@@ -49,5 +49,19 @@ window.addEventListener('DOMContentLoaded', () => {
     const newBtn = document.getElementById('new-btn');
     if (newBtn) {
         newBtn.addEventListener('click', () => newSong());
+    }
+
+    const logoutBtn = document.getElementById('log-out-btn')
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await logoutUser();
+                localStorage.removeItem('authToken');
+                window.location.href = '/login'
+            } catch (error) {
+                handleAPIError(error);
+                console.error("Unable to log out:", error);
+            }
+        })
     }
 });

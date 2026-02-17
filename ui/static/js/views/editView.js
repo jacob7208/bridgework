@@ -10,6 +10,7 @@ import {lookupWord} from "../datamuse.js";
 let titleInput;
 let lyricEditor;
 let statusElement;
+let bookElement;
 let perfRhymesDiv;
 let nearRhymesDiv;
 let synonymsDiv;
@@ -65,9 +66,14 @@ function initEditorDOM() {
     songContainer.appendChild(lyricEditor);
 
     statusElement = document.getElementById('save-status');
+    bookElement = document.getElementById('book')
     perfRhymesDiv = document.getElementById('perfect-rhymes');
     nearRhymesDiv = document.getElementById('near-rhymes');
     synonymsDiv = document.getElementById('synonyms')
+
+    perfRhymesDiv.innerHTML = '';
+    nearRhymesDiv.innerHTML = '';
+    synonymsDiv.innerHTML = '';
 }
 
 function renderTitle() {
@@ -89,18 +95,17 @@ function renderLyrics() {
 }
 
 function renderBook() {
-    const book = document.getElementById("book");
     const openBtn = document.querySelector(".book-open-btn");
     const closeBtn = document.querySelector(".book-close");
 
     openBtn.addEventListener("click", () => {
-        book.classList.remove("closed");
+        bookElement.classList.remove("closed");
         const songNotebook = document.getElementById('song-notebook');
         songNotebook.style.paddingBottom = '400px';
     });
 
     closeBtn.addEventListener("click", () => {
-        book.classList.add("closed");
+        bookElement.classList.add("closed");
         const songNotebook = document.getElementById('song-notebook');
         songNotebook.style.paddingBottom = '';
     });
@@ -110,6 +115,8 @@ function renderWordResults(results) {
     perfRhymesDiv.innerHTML = '';
     nearRhymesDiv.innerHTML = '';
     synonymsDiv.innerHTML = '';
+
+    console.log('InnerHTML:', synonymsDiv.innerHTML)
 
     results.perfRhymes.forEach(word => {
         const p = document.createElement('p');

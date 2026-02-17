@@ -1,5 +1,7 @@
 import {fetchAuthenticationToken} from "../api.js";
 
+if (localStorage.getItem('authToken')) window.location.href = '/app';
+
 const form = document.forms['login-form'];
 
 form.addEventListener("submit", async (e) => {

@@ -1,20 +1,35 @@
 # BridgeWork
 
-AI-powered songwriting assistant that helps lyricists find better rhymes, explore synonyms, and brainstorm thematic directions.
+A lightweight songwriting assistant that provides real-time rhyme and synonym suggestions as you write. 
+No more toggling between tabs to find the right word.
 
-## MVP Goals
-Build a functional web app where users can:
-1. Input lyrics in progress
-2. Select a word and get rhyme suggestions 
-3. Get synonym suggestions for selected words
-4. Get high-level thematic/directional suggestions from LLM
-5. Save and load their lyrics
+![BridgeWork Interface](docs/images/screenshot.png)
 
-## MVP TODO
+## Tech Stack
+- Go (Backend)
+- HTML/CSS/JavaScript (Frontend)
+- Postgres (Database)
 
-- [ ] Create UI: textarea for lyrics, buttons for rhyme/synonym/brainstorm, results display
-- [ ] Integrate Datamuse API - rhyme & synonym endpoints
-- [ ] Build ranking algorithm: sort by syllable count match, filter common words, etc.
-- [ ] Integrate LLM endpoint for brainstorm feature
+## Current Features
+- Signup/activation/login/logout lifecycle
+- Text editor with autosave
+- Dynamic rhyme and synonym recommendations
+
+## Known Limitations
+- Limited number and lower quality of rhyme and synonym suggestions
+- No text formatting or theme customization options
+- No caching of rhymes and synonyms on backend
+- No collaboration or export features
+
+## Planned Features
+- Higher quantity and smarter rhyme and synonym suggestions
+- AI brainstorm that offers thematic directions
+- Caching rhymes and synonyms on backend
+- Real-time collaboration
+- Multiple themes/customizations
+- Upload song audio to loop while writing
+- Record melody ideas for lines
+- Pre-made labels such as Verse, Chorus, etc
+- Add chords above lyric lines
 
 

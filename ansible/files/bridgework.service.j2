@@ -1,0 +1,26 @@
+[Unit]
+Description=Bridgework app service
+
+After=postgresql.service
+After=network-online.target
+Wants=network-online.target
+
+StartLimitIntervalSec=600
+StartLimitBurst=5
+
+[Service]
+
+Type=exec
+User=bridgework
+Group=bridgework
+EnvironmentFile=/opt/bridgework/app.env
+WorkingDirectory=/opt/bridgework
+ExecStart=/opt/bridgework/api -port=4000 -env=production
+
+Restart=on-failure
+RestartSec=5
+
+[Install]
+# Start the service automatically at boot time (the 'multi-user.target' describes a boot
+# state when the system will accept logins).
+WantedBy=multi-user.target

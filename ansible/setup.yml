@@ -1,0 +1,193 @@
+- name: Setup server, app and dependencies
+  hosts: servers
+  become: true
+  vars_files:
+    - vault.yml
+  tasks:
+    - name: Update all packages to their latest version
+      ansible.builtin.apt:
+        name: "*"
+        state: latest
+
+    - name: Create bridgework user
+      ansible.builtin.user:
+        name: bridgework
+        password: "{{ bridgework_password }}"
+        groups: sudo
+        append: yes
+
+    - name: Create .ssh directory for bridgework user
+      ansible.builtin.file:
+        path: /home/bridgework/.ssh
+        state: directory
+        owner: bridgework
+        group: bridgework
+        mode: '0700'
+
+    - name: Add SSH key to bridgework user
+      ansible.builtin.copy:
+        src: ~/.ssh/id_ed25519.pub
+        dest: /home/bridgework/.ssh/authorized_keys
+        owner: bridgework
+        group: bridgework
+        mode: '0600'
+
+    - name: Disable root login
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^#PermitRootLogin"
+        line: "PermitRootLogin no"
+        backup: yes
+      notify: restart sshd
+
+    - name: Disable password authentication
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^#Password Authentication"
+        line: "PasswordAuthentication no"
+        backup: yes
+      notify: restart sshd
+
+    - name: Enable SSH key authentication
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^#PubkeyAuthentication"
+        line: "PubkeyAuthentication yes"
+        backup: yes
+      notify: restart sshd
+
+    - name: Enforce SSH key passphrases
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^#PermitEmptyPasswords"
+        line: "PermitEmptyPasswords no"
+        backup: yes
+      notify: restart sshd
+
+    - name: Disable GUI forwarding
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^X11Forwarding"
+        line: "X11Forwarding no"
+        backup: yes
+      notify: restart sshd
+
+    - name: Limit Login attempts
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^#MaxAuthTries"
+        line: "MaxAuthTries 3"
+        backup: yes
+      notify: restart sshd
+
+    - name: Allow port 22 UFW
+      community.general.ufw:
+        rule: allow
+        port: 22
+
+    - name: Enable UFW
+      community.general.ufw:
+        state: enabled
+        policy: deny
+
+    - name: Install fail2ban
+      ansible.builtin.apt:
+        name: fail2ban
+
+    - name: Install unattended upgrades
+      ansible.builtin.apt:
+        name: unattended-upgrades
+
+    - name: Install migrate CLI tool
+      ansible.builtin.shell:
+        cmd: curl -L https://github.com/golang-migrate/migrate/releases/download/v4.17.1/migrate.linux-amd64.tar.gz | tar xvz && mv migrate /usr/local/bin/migrate
+      args:
+        creates: /usr/local/bin/migrate
+
+    - name: Install PostgreSQL
+      ansible.builtin.apt:
+        name: postgresql
+
+    - name: Install psycopg2
+      ansible.builtin.apt:
+        name: python3-psycopg2
+
+    - name: Create database
+      become: true
+      become_user: postgres
+      community.postgresql.postgresql_db:
+        name: bridgework
+
+    - name: Create citext extension
+      become: true
+      become_user: postgres
+      community.postgresql.postgresql_ext:
+        name: citext
+        login_db: bridgework
+
+    - name: Create database user account
+      become: true
+      become_user: postgres
+      community.postgresql.postgresql_user:
+        login_db: bridgework
+        name: bridgework
+        password: "{{ db_password }}"
+
+    - name: Grant schema permissions to bridgework user
+      community.postgresql.postgresql_query:
+        db: bridgework
+        query: "GRANT ALL ON SCHEMA public TO bridgework;"
+      become: true
+      become_user: postgres
+
+    - name: Create app directory
+      ansible.builtin.file:
+        path: /opt/bridgework
+        state: directory
+        owner: bridgework
+        mode: '0750'
+
+    - name: Create systemd service for app
+      ansible.builtin.template:
+        src: files/bridgework.service.j2
+        dest: /etc/systemd/system/bridgework.service
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Enable systemd service for app
+      ansible.builtin.systemd_service:
+        name: bridgework
+        enabled: true
+        state: stopped
+
+    - name: Set environment variables
+      ansible.builtin.template:
+        src: files/app.env.j2
+        dest: /opt/bridgework/app.env
+        owner: bridgework
+        group: bridgework
+        mode: '0600'
+
+    - name: Install cloudflared
+      ansible.builtin.apt:
+        deb: https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+
+    - name: Install the tunnel as a systemd service
+      ansible.builtin.shell:
+          cmd: "cloudflared service install {{ tunnel_token }}"
+      args:
+        creates: /etc/systemd/system/cloudflared.service
+
+    - name: Start the tunnel
+      ansible.builtin.systemd_service:
+          name: cloudflared
+          state: started
+          enabled: true
+          masked: no
+
+  handlers:
+    - name: restart sshd
+      service:
+        name: sshd
+        state: restarted

@@ -1,9 +1,7 @@
 import {newFetchError} from "./utils/helpers.js";
 
-const API_BASE_URL = 'http://localhost:4000';
-
 export async function fetchSongs() {
-    const response = await fetch(`${API_BASE_URL}/v1/songs`, {
+    const response = await fetch(`/v1/songs`, {
         headers: {'Authorization': `Bearer ${localStorage.getItem('authToken')}`}
     });
     const result = await response.json();
@@ -13,7 +11,7 @@ export async function fetchSongs() {
 }
 
 export async function fetchSong(id) {
-    const response = await fetch(`${API_BASE_URL}/v1/songs/${id}`, {
+    const response = await fetch(`/v1/songs/${id}`, {
         headers: {'Authorization': `Bearer ${localStorage.getItem('authToken')}`}
     });
     const result = await response.json();
@@ -23,7 +21,7 @@ export async function fetchSong(id) {
 }
 
 export async function createSong(title, lyrics) {
-    const response = await fetch(`${API_BASE_URL}/v1/songs`, {
+    const response = await fetch(`/v1/songs`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -38,7 +36,7 @@ export async function createSong(title, lyrics) {
 }
 
 export async function updateSong(id, title, lyrics) {
-    const response = await fetch(`${API_BASE_URL}/v1/songs/${id}`, {
+    const response = await fetch(`/v1/songs/${id}`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
@@ -53,7 +51,7 @@ export async function updateSong(id, title, lyrics) {
 }
 
 export async function deleteSong(id) {
-    const response = await fetch(`${API_BASE_URL}/v1/songs/${id}`, {
+    const response = await fetch(`/v1/songs/${id}`, {
         method: 'DELETE',
         headers: {'Authorization': `Bearer ${localStorage.getItem('authToken')}`}
     });
@@ -64,7 +62,7 @@ export async function deleteSong(id) {
 }
 
 export async function registerUser(name, email, password) {
-    const response = await fetch(`${API_BASE_URL}/v1/users`, {
+    const response = await fetch(`/v1/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password })
@@ -76,7 +74,7 @@ export async function registerUser(name, email, password) {
 }
 
 export async function activateUser(token) {
-    const response = await fetch(`${API_BASE_URL}/v1/users/activated`, {
+    const response = await fetch(`/v1/users/activated`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token })
@@ -88,7 +86,7 @@ export async function activateUser(token) {
 }
 
 export async function fetchAuthenticationToken(email, password) {
-    const response = await fetch(`${API_BASE_URL}/v1/tokens/authentication`, {
+    const response = await fetch(`/v1/tokens/authentication`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -100,7 +98,7 @@ export async function fetchAuthenticationToken(email, password) {
 }
 
 export async function logoutUser() {
-    const response = await fetch(`${API_BASE_URL}/v1/tokens/authentication`, {
+    const response = await fetch(`/v1/tokens/authentication`, {
         method: 'DELETE',
         headers: {'Authorization': `Bearer ${localStorage.getItem('authToken')}`}
     });

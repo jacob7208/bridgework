@@ -1,0 +1,49 @@
+- name: Deploy Bridgework app
+  hosts: servers
+  become: yes
+  vars_files:
+    - vault.yml
+  tasks:
+    - name: Build app binary
+      ansible.builtin.shell:
+        cmd: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/api ./cmd/api
+        chdir: "{{ playbook_dir }}/.."
+      delegate_to: localhost
+      become: false
+
+    - name: Rsync binary to server
+      ansible.posix.synchronize:
+        src: ../bin/api
+        dest: /opt/bridgework/api
+      become: false
+
+    - name: Rsync ui folder to server
+      ansible.posix.synchronize:
+        src: ../ui/
+        dest: /opt/bridgework
+        recursive: true
+      become: false
+
+    - name: Rsync migrations to server
+      ansible.posix.synchronize:
+        src: ../migrations/
+        dest: /opt/bridgework/migrations
+      become: false
+
+    - name: Run Migrations
+      ansible.builtin.shell:
+        cmd: "migrate -path /opt/bridgework/migrations -database {{ db_dsn }} up"
+
+    - name: Start systemd service for app
+      ansible.builtin.systemd_service:
+        name: bridgework
+        enabled: true
+        state: restarted
+
+    - name: Healthcheck
+      ansible.builtin.uri:
+        url: http://localhost:4000/v1/healthcheck
+      retries: 5
+      delay: 3
+      register: result
+      until: result.status == 200

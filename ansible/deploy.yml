@@ -19,9 +19,10 @@
 
     - name: Rsync ui folder to server
       ansible.posix.synchronize:
-        src: ../ui/
+        src: ../ui
         dest: /opt/bridgework
         recursive: true
+        delete: true
       become: false
 
     - name: Rsync migrations to server

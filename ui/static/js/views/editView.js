@@ -82,7 +82,7 @@ function renderLyrics() {
 
     editorState.lyrics.forEach(line => {
         const p = document.createElement('p');
-        p.textContent = line;
+        p.textContent = line === '\u200B' ? '' : line;
         lyricEditor.appendChild(p);
         });
 
@@ -97,14 +97,10 @@ function renderBook() {
 
     openBtn.addEventListener("click", () => {
         bookElement.classList.remove("closed");
-        const songNotebook = document.getElementById('song-notebook');
-        songNotebook.style.paddingBottom = '400px';
     });
 
     closeBtn.addEventListener("click", () => {
         bookElement.classList.add("closed");
-        const songNotebook = document.getElementById('song-notebook');
-        songNotebook.style.paddingBottom = '';
     });
 }
 
@@ -126,7 +122,7 @@ function renderWordResults(results) {
 
 function attachEventHandlers(editor, titleInput) {
     editor.addEventListener('input', () => {
-        editorState.lyrics = [...editor.children].map(p => p.textContent);
+        editorState.lyrics = [...editor.children].map(p => p.textContent || '\u200B');
         scheduleSave();
 
         handleWordLookup();

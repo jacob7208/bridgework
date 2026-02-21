@@ -5,6 +5,31 @@ No more toggling between tabs to find the right word.
 
 ![BridgeWork Interface](docs/images/screenshot.png)
 
+## Demo
+Visit [bridgework.prismcoretech.com](https://bridgework.prismcoretech.com) for a live demo.
+
+> **Credentials:** demo@bridgework.mailer.me / password123
+
+## Running Locally
+
+### Prerequisites:
+- Go 1.25+ 
+- PostgreSQL with a `bridgework` database and user created
+### Environment Variables (or runtime flags)
+| Variable | Description |
+|----------|-------------|
+| `DB_DSN` | Postgres connection string |
+| `SMTP_HOST` | SMTP server host |
+| `SMTP_PORT` | SMTP server port |
+| `SMTP_USERNAME` | SMTP username |
+| `SMTP_PASSWORD` | SMTP password |
+
+```sh
+go mod download
+go run ./cmd/api
+```
+
+
 ## Tech Stack
 - Go (Backend)
 - HTML/CSS/JavaScript (Frontend)
@@ -14,12 +39,6 @@ No more toggling between tabs to find the right word.
 - Signup/activation/login/logout lifecycle
 - Text editor with autosave
 - Dynamic rhyme and synonym recommendations
-
-## Known Limitations
-- Basic rhyme and synonym filtering logic
-- No text formatting or theme customization options
-- No caching of rhymes and synonyms on backend
-- No collaboration or export features
 
 ## Planned Features
 - Smarter rhyme and synonym suggestions

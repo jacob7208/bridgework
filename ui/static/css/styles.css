@@ -148,11 +148,13 @@ body {
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
+    pointer-events: none;
 
     z-index: 50;
 }
 
 .book-open-btn {
+    pointer-events: auto;
     position: fixed;
     bottom: 1rem;
     left: 50%;
@@ -180,6 +182,7 @@ body {
 }
 
 .book {
+    pointer-events: auto;
     position: relative;
     margin: 0 auto;
 

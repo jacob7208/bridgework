@@ -13,6 +13,7 @@
       ansible.builtin.user:
         name: bridgework
         password: "{{ bridgework_password }}"
+        shell: /bin/bash
         groups: sudo
         append: yes
 

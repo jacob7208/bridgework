@@ -8,9 +8,6 @@ import (
 func (app *application) routes() http.Handler {
 	router := httprouter.New()
 
-	router.NotFound = http.HandlerFunc(app.notFoundResponse)
-	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowed)
-
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
 
 	router.HandlerFunc(http.MethodPost, "/v1/songs", app.requireActivatedUser(app.createSongHandler))
@@ -21,6 +18,7 @@ func (app *application) routes() http.Handler {
 
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activated", app.activateUserHandler)
+	router.HandlerFunc(http.MethodGet, "/v1/users/me", app.showCurrentUserHandler)
 
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", app.createAuthenticationTokenHandler)
 	router.HandlerFunc(http.MethodDelete, "/v1/tokens/authentication", app.requireActivatedUser(app.deleteAuthenticationTokenHandler))
@@ -28,7 +26,8 @@ func (app *application) routes() http.Handler {
 	fs := http.FileServer(http.Dir("./dist/assets"))
 	router.Handler(http.MethodGet, "/assets/*filepath", http.StripPrefix("/assets/", fs))
 
-	router.HandlerFunc(http.MethodGet, "/", app.serveReactApp)
+	router.NotFound = http.HandlerFunc(app.serveReactApp)
+	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowed)
 
 	return app.recoverPanic(app.enableCORS(app.authenticate(router)))
 }

@@ -25,16 +25,10 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", app.createAuthenticationTokenHandler)
 	router.HandlerFunc(http.MethodDelete, "/v1/tokens/authentication", app.requireActivatedUser(app.deleteAuthenticationTokenHandler))
 
-	fs := http.FileServer(http.Dir("./ui/static"))
-	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static/", fs))
+	fs := http.FileServer(http.Dir("./dist/assets"))
+	router.Handler(http.MethodGet, "/assets/*filepath", http.StripPrefix("/assets/", fs))
 
-	router.HandlerFunc(http.MethodGet, "/", app.serveLoginPage)
-	router.HandlerFunc(http.MethodGet, "/signup", app.serveSignUpPage)
-	router.HandlerFunc(http.MethodGet, "/login", app.serveLoginPage)
-	router.HandlerFunc(http.MethodGet, "/activate", app.serveActivatePage)
+	router.HandlerFunc(http.MethodGet, "/", app.serveReactApp)
 
-	router.HandlerFunc(http.MethodGet, "/app", app.serveSPA)
-	router.HandlerFunc(http.MethodGet, "/app/*filepath", app.serveSPA)
-
-	return app.recoverPanic(app.authenticate(router))
+	return app.recoverPanic(app.enableCORS(app.authenticate(router)))
 }

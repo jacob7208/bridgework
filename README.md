@@ -15,6 +15,8 @@ Visit [bridgework.prismcoretech.com](https://bridgework.prismcoretech.com) for a
 ### Prerequisites:
 - Go 1.25+ 
 - PostgreSQL with a `bridgework` database and user created
+- npm 11.8+
+- node 25.5+
 ### Environment Variables (or runtime flags)
 | Variable | Description |
 |----------|-------------|
@@ -23,16 +25,25 @@ Visit [bridgework.prismcoretech.com](https://bridgework.prismcoretech.com) for a
 | `SMTP_PORT` | SMTP server port |
 | `SMTP_USERNAME` | SMTP username |
 | `SMTP_PASSWORD` | SMTP password |
+### Local Setup
 
+**Backend:**
 ```sh
 go mod download
 go run ./cmd/api
 ```
 
+**Frontend:**
+```sh
+cd frontend
+npm install
+npm run dev
+```
+Visit `http://localhost:5173` to use the app.
 
 ## Tech Stack
 - Go (Backend)
-- HTML/CSS/JavaScript (Frontend)
+- React + Typescript (Frontend)
 - Postgres (Database)
 
 ## Current Features

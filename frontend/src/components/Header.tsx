@@ -1,4 +1,7 @@
 import {useNavigate} from 'react-router'
+import {logoutUser} from "../services/api.ts";
+import {FetchError} from "../types";
+import {handleAPIError} from "../utils/helpers.ts";
 
 export default function Header({isLoggedIn}: {isLoggedIn: boolean}) {
     const navigate = useNavigate();
@@ -11,10 +14,16 @@ export default function Header({isLoggedIn}: {isLoggedIn: boolean}) {
         navigate("/login");
     }
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         console.log('Logout clicked');
         localStorage.removeItem("authToken");
-        navigate("/login");
+        try {
+            await logoutUser();
+            navigate("/login");
+        } catch (error) {
+            if (error instanceof FetchError)
+                handleAPIError(error, navigate);
+        }
     }
 
     return (

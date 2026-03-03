@@ -107,3 +107,17 @@ export async function logoutUser(): Promise<string> {
     if (!response.ok) throw new FetchError(response, result);
     return result.message;
 }
+
+export async function fetchCurrentUser(): Promise<User> {
+    const response = await fetch(`/v1/users/me`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+        },
+    });
+    const result = await response.json();
+
+    if (!response.ok) throw new FetchError(response, result);
+    return result.user as User;
+}

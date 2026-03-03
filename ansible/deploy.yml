@@ -13,13 +13,20 @@
 
     - name: Rsync binary to server
       ansible.posix.synchronize:
-        src: ../bin/api
+        src: "{{ playbook_dir }}/../bin/api"
         dest: /opt/bridgework/api
       become: false
 
-    - name: Rsync ui folder to server
+    - name: Build frontend with npm
+      ansible.builtin.shell: npm run build
+      args:
+        chdir: "{{ playbook_dir }}/../frontend"
+      delegate_to: localhost
+      become: false
+
+    - name: Rsync frontend folder to server
       ansible.posix.synchronize:
-        src: ../ui
+        src: "{{ playbook_dir }}/../frontend/dist"
         dest: /opt/bridgework
         recursive: true
         delete: true
@@ -27,7 +34,7 @@
 
     - name: Rsync migrations to server
       ansible.posix.synchronize:
-        src: ../migrations/
+        src: "{{ playbook_dir }}/../migrations/"
         dest: /opt/bridgework/migrations
       become: false
 

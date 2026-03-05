@@ -115,6 +115,10 @@ export default function SongEditPage() {
         setIsBookOpen(true);
     }
 
+    const handleBookClose = () => {
+        setIsBookOpen(false);
+    }
+
     return (
         <>
             <Header isLoggedIn={true} />
@@ -167,7 +171,10 @@ export default function SongEditPage() {
                         onClick={() => handleBookOpen()}
                     >Rhymes & Synonyms</div>
                     <div id="book" className={isBookOpen ? "book" : "book closed"}>
-                        <button className="book-close">close</button>
+                        <button
+                            className="book-close"
+                        onClick={() => handleBookClose()
+                        }>close</button>
                         <p className="book-arrow">↓</p>
                         <div id="rhyme-dict" className="book-page-left">
                             <h3>Rhymes</h3>
